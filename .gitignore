@@ -1,0 +1,44 @@
+# Environment variables with sensitive information
+.env
+
+# Generated configuration files
+config.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Node.js (if applicable, though this is Go-based)
+node_modules/
+
+# Go specific (if building locally)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
