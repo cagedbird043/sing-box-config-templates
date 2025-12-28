@@ -1,0 +1,19 @@
+name: Dispatch Update to Module Repo
+
+on:
+  push:
+    branches: ["mobile"] # 必须是当前分支名
+    paths:
+      - "config.template.json" # 只有配置变了才触发，改 README 别乱触发
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_TOKEN }}
+          repository: cagedbird043/sing-box-ksu-module
+          event-type: config_update
+          client-payload: '{"message": "${{ github.event.head_commit.message }}"}'
