@@ -16,7 +16,7 @@
     "cache_file": {
       "enabled": true,
       "store_rdrc": true,
-      "store_fakeip": false
+      "store_fakeip": true
     }
   },
   "dns": {
@@ -31,6 +31,11 @@
         "tag": "local",
         "type": "https",
         "server": "223.5.5.5"
+      },
+      {
+        "tag": "fakeip",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15"
       }
     ],
     "rules": [
@@ -40,7 +45,8 @@
       },
       {
         "clash_mode": "Global",
-        "server": "google"
+        "query_type": ["A", "AAAA"],
+        "server": "fakeip"
       },
       // DNS 分流：使用 Full 规则，确保所有国内域名（含冷门）都走国内 DNS
       {
@@ -120,9 +126,13 @@
           }
         ],
         "server": "google"
+      },
+      {
+        "query_type": ["A", "AAAA"],
+        "server": "fakeip"
       }
     ],
-    "final": "local",
+    "final": "google",
     "strategy": "ipv4_only",
     "independent_cache": true,
     "reverse_mapping": true
