@@ -184,9 +184,7 @@
       "user_agent": "clash.meta",
       "download_detour": "🇨🇳 国内直连",
       "health_check": {
-        "enabled": true,
-        "url": "http://cp.cloudflare.com/generate_204",
-        "interval": "3m"
+        "enabled": false
       }
     },
     {
@@ -198,9 +196,7 @@
       "user_agent": "clash.meta",
       "download_detour": "🇨🇳 国内直连",
       "health_check": {
-        "enabled": true,
-        "url": "http://cp.cloudflare.com/generate_204",
-        "interval": "3m"
+        "enabled": false
       }
     },
     {
@@ -212,9 +208,7 @@
       "user_agent": "clash.meta",
       "download_detour": "🇨🇳 国内直连",
       "health_check": {
-        "enabled": true,
-        "url": "http://cp.cloudflare.com/generate_204",
-        "interval": "3m"
+        "enabled": false
       }
     }
   ],
@@ -393,8 +387,8 @@
       "url": "http://cp.cloudflare.com/generate_204",
       "tolerance": 15,
       "interval": "3m",
-      "idle_timeout": "15m",
-      "interrupt_exist_connections": false
+      "idle_timeout": "60m",
+      "interrupt_exist_connections": true
     },
     {
       "tag": "⚡ 自动选择(排除香港)",
@@ -409,8 +403,8 @@
       "url": "http://cp.cloudflare.com/generate_204",
       "tolerance": 15,
       "interval": "3m",
-      "idle_timeout": "15m",
-      "interrupt_exist_connections": false
+      "idle_timeout": "60m",
+      "interrupt_exist_connections": true
     },
     {
       "tag": "🇨🇳 国内直连",
