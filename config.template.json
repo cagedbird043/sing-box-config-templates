@@ -107,15 +107,6 @@
       "strict_route": true,
       "mtu": 9000,
       "route_exclude_address_set": ["geoip-cn"],
-      "route_exclude_address": [
-        "10.0.0.0/8",
-        "172.16.0.0/12",
-        "192.168.0.0/16",
-        "100.64.0.0/10",
-        "169.254.0.0/16",
-        "fc00::/7",
-        "fe80::/10"
-      ],
       "platform": {
         "http_proxy": {
           "enabled": true,
