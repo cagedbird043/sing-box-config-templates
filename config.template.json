@@ -48,7 +48,26 @@
         "query_type": ["A", "AAAA"],
         "server": "fakeip"
       },
-      // DNS 分流：使用 Full 规则，确保所有国内域名（含冷门）都走国内 DNS
+      // 1. Steam 专项 (Real-IP): 必须最优先，确保 CM/CDN 拿真实 IP 以维持 CN 身份
+      // 这些域名必须走 local 解析，配合 route 里的直连规则
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          {
+            "domain": [
+              "cm.steampowered.com",
+              "steamserver.net",
+              "steamcontent.com",
+              "steamstatic.com"
+            ]
+          },
+          { "rule_set": "geosite-steam@cn" }
+        ],
+        "server": "local"
+      },
+
+      // 2. 国内四级漏斗 (Real-IP): 确保国内域名解析出真实 IP，供 nftables/route 绕过内核
       {
         "type": "logical",
         "mode": "or",
@@ -69,46 +88,18 @@
             "rule_set": [
               "geosite-cn-full",
               "geosite-geolocation-cn",
-              "geosite-cn-lite"
+              "geosite-cn-lite",
+              "geosite-microsoft@cn",
+              "geosite-apple@cn"
             ]
           }
         ],
         "server": "local"
       },
-      // DNS 侧 Steam 策略 - 商店/社区 -> google，CM/CDN -> local
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "domain": [
-              "steampowered.com",
-              "steamcommunity.com",
-              "steamgames.com"
-            ]
-          }
-        ],
-        "server": "google"
-      },
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "domain": [
-              "cm.steampowered.com",
-              "steamserver.net",
-              "steamcontent.com",
-              "steamstatic.com"
-            ]
-          },
-          {
-            "rule_set": "geosite-steam@cn"
-          }
-        ],
-        "server": "local"
-      },
-      // Google 组 (优先处理 Play 商店送中域名)
+
+      // 3. 国外/Google 流量 -> 强制 Fake-IP (修正点！)
+      // 之前这里写的是 server: google，所以它返回了 Real IP。
+      // 现在改为 server: fakeip，Google 就会变成 198.18.x.x
       {
         "type": "logical",
         "mode": "or",
@@ -122,11 +113,21 @@
             ]
           },
           {
-            "rule_set": ["geosite-google", "geosite-geolocation-!cn"]
+            "rule_set": [
+              "geosite-google",
+              "geosite-geolocation-!cn",
+              "geosite-youtube",
+              "geosite-ai",
+              "geosite-telegram",
+              "geosite-github"
+            ]
           }
         ],
-        "server": "google"
+        "server": "fakeip"
       },
+
+      // 4. 剩下的所有 IPv4/IPv6 地址查询 -> 强制 Fake-IP
+      // 兜底规则：不仅是 notfoundme.com，任何没命中上面规则的域名都 FakeIP
       {
         "query_type": ["A", "AAAA"],
         "server": "fakeip"
