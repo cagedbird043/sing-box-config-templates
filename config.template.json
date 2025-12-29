@@ -90,7 +90,8 @@
               "geosite-geolocation-cn",
               "geosite-cn-lite",
               "geosite-microsoft@cn",
-              "geosite-apple@cn"
+              "geosite-apple@cn",
+              "geosite-google@cn"
             ]
           }
         ],
@@ -114,6 +115,7 @@
           },
           {
             "rule_set": [
+              "geosite-googlefcm",
               "geosite-google",
               "geosite-geolocation-!cn",
               "geosite-youtube",
@@ -717,7 +719,8 @@
           "geosite-cn-lite",
           "geosite-category-games@cn",
           "geosite-microsoft@cn",
-          "geosite-apple@cn"
+          "geosite-apple@cn",
+          "geosite-google@cn"
         ],
         "domain": [
           "beautifulcarrot.com",
@@ -726,7 +729,8 @@
           "0xc.cn",
           "ash.do",
           "ash6.com",
-          "ssh.github.com"
+          "ssh.github.com",
+          "dl.google.com"
         ],
         "outbound": "direct"
       },
@@ -881,7 +885,12 @@
             ]
           },
           {
-            "rule_set": ["geoip-google", "geosite-google"]
+            "rule_set": [
+              "geoip-google",
+              "geosite-google",
+              "geosite-googlefcm",
+              "geosite-google-play@cn"
+            ]
           }
         ],
         "outbound": "🇬 谷歌服务"
@@ -976,6 +985,27 @@
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google-gemini.srs",
         "download_detour": "direct",
         "update_interval": "3d"
+      },
+      {
+        "tag": "geosite-googlefcm",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/googlefcm.srs",
+        "download_detour": "direct"
+      },
+      {
+        "tag": "geosite-google@cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google@cn.srs",
+        "download_detour": "direct"
+      },
+      {
+        "tag": "geosite-google-play@cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google-play@cn.srs",
+        "download_detour": "direct"
       },
       {
         "tag": "geosite-youtube",
