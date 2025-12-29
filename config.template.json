@@ -42,53 +42,51 @@
         "clash_mode": "Global",
         "server": "google"
       },
-      {
-        "domain_suffix": [
-          "beautifulcarrot.com",
-          "miceworld.top",
-          "0xc.xyz",
-          "0xc.cn",
-          "ash.do",
-          "ash6.com",
-          "ssh.github.com"
-        ],
-        "server": "local"
-      },
-      {
-        "domain_suffix": [
-          "services.googleapis.cn",
-          "googleapis.cn",
-          "xn--ngstr-lra8j.com",
-          "xn--ngstr-cn-8za9o.com"
-        ],
-        "server": "google"
-      },
-      {
-        "rule_set": "geosite-google",
-        "server": "google"
-      },
-      {
-        "rule_set": "geosite-geolocation-cn",
-        "server": "local"
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "server": "google"
-      },
+      // DNS 分流：使用 Full 规则，确保所有国内域名（含冷门）都走国内 DNS
       {
         "type": "logical",
-        "mode": "and",
+        "mode": "or",
         "rules": [
           {
-            "rule_set": "geosite-geolocation-!cn",
-            "invert": true
+            "domain": [
+              "beautifulcarrot.com",
+              "miceworld.top",
+              "0xc.xyz",
+              "0xc.cn",
+              "ash.do",
+              "ash6.com",
+              "ssh.github.com"
+            ]
           },
           {
-            "rule_set": "geoip-cn"
+            // DNS 层面不需要漏斗，直接用全集，保证解析准确性
+            "rule_set": [
+              "geosite-cn-full",
+              "geosite-geolocation-cn",
+              "geosite-cn-lite"
+            ]
           }
         ],
-        "server": "google",
-        "client_subnet": "114.114.114.114/24"
+        "server": "local"
+      },
+      // Google 组 (优先处理 Play 商店送中域名)
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          {
+            "domain": [
+              "services.googleapis.cn",
+              "googleapis.cn",
+              "xn--ngstr-lra8j.com",
+              "xn--ngstr-cn-8za9o.com"
+            ]
+          },
+          {
+            "rule_set": ["geosite-google", "geosite-geolocation-!cn"]
+          }
+        ],
+        "server": "google"
       }
     ],
     "final": "local",
@@ -104,9 +102,11 @@
       "address": ["172.18.0.1/30"],
       "auto_route": true,
       "auto_redirect": true,
+      // Win11 分支需改为 false
       "strict_route": true,
       "mtu": 9000,
       "route_exclude_address_set": ["geoip-cn"],
+      // 物理 Bypass 国内 IP
       "platform": {
         "http_proxy": {
           "enabled": true,
@@ -612,118 +612,89 @@
     "default_domain_resolver": "local",
     "final": "🔰 节点选择",
     "rules": [
-      {
-        "action": "sniff"
-      },
+      { "action": "sniff" },
       {
         "type": "logical",
         "mode": "or",
         "rules": [
-          {
-            "protocol": "dns"
-          },
-          {
-            "port": 53
-          }
+          { "protocol": "dns" },
+          { "port": 53 },
+          { "inbound": ["dns-in"] }
         ],
         "action": "hijack-dns"
       },
+      // 0. 基础拦截 (Reject)
       {
         "type": "logical",
         "mode": "or",
         "rules": [
-          {
-            "protocol": "ntp"
-          },
-          {
-            "port": 123
-          }
-        ],
-        "outbound": "direct"
-      },
-      {
-        "inbound": ["dns-in"],
-        "action": "hijack-dns"
-      },
-      {
-        "ip_is_private": true,
-        "outbound": "direct"
-      },
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          {
-            "port": 853
-          },
-          {
-            "network": "udp",
-            "port": 443
-          },
-          {
-            "protocol": "stun"
-          }
+          { "port": 853 },
+          { "network": "udp", "port": 443 },
+          { "protocol": ["stun", "quic"] }
         ],
         "action": "reject"
       },
+      // 0. 基础直连 (Private/LAN)
       {
-        "domain_suffix": [
-          "services.googleapis.cn",
-          "googleapis.cn",
-          "xn--ngstr-lra8j.com",
-          "xn--ngstr-cn-8za9o.com"
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          { "ip_is_private": true },
+          { "protocol": ["ntp", "bittorrent"] },
+          { "port": 123 },
+          { "domain_suffix": [".lan"] }
         ],
-        "outbound": "🇬 谷歌服务"
+        "outbound": "direct"
       },
+
+      // --- 漏斗 Level 1: 急速层 (Lite + Manual) ---
+      // 20KB 极小体积，命中 90% 日常流量，常驻 L1 Cache
+      {
+        "rule_set": [
+          "geosite-cn-lite",
+          "geosite-category-games@cn",
+          "geosite-microsoft@cn",
+          "geosite-apple@cn"
+        ],
+        "domain": [
+          "beautifulcarrot.com",
+          "miceworld.top",
+          "0xc.xyz",
+          "0xc.cn",
+          "ash.do",
+          "ash6.com",
+          "ssh.github.com"
+        ],
+        "outbound": "direct"
+      },
+      // --- 漏斗 Level 2: 地缘层 (Geolocation) ---
+      // 32KB，处理 CDN 和跨国公司中国区
       {
         "rule_set": "geosite-geolocation-cn",
         "outbound": "direct"
       },
+      // --- 漏斗 Level 3: 覆盖层 (Full CN) ---
+      // 443KB 大规则，捕捉所有长尾冷门域名
       {
-        "type": "logical",
-        "mode": "and",
-        "rules": [
-          {
-            "rule_set": "geoip-cn"
-          },
-          {
-            "rule_set": "geosite-geolocation-!cn",
-            "invert": true
-          }
-        ],
+        "rule_set": "geosite-cn-full",
         "outbound": "direct"
       },
-      {
-        "domain_suffix": [".lan"],
-        "outbound": "direct"
-      },
-      {
-        "clash_mode": "direct",
-        "outbound": "direct"
-      },
-      {
-        "clash_mode": "Global",
-        "outbound": "🔰 节点选择"
-      },
-      {
-        "protocol": "bittorrent",
-        "outbound": "direct"
-      },
-      {
-        "protocol": "quic",
-        "action": "reject"
-      },
+
+      // 4. 桌面端白名单 (Win11 保留，Mobile 分支需通过变基移除)
+      // 策略：剔除已弃用/臃肿软件，仅保留核心生产力与局域网协作工具
+      // 注意：不包含 Steam，以便通过域名分流实现“商店走节点，下载走直连”
       {
         "process_name": [
+          // 腾讯系 (含 Linux 版微信/QQ)
           "WeChat.exe",
           "wechat",
           "WeChat",
           "QQ.exe",
-          "qq",
           "linuxqq",
           "TIM.exe",
           "WXWork.exe",
           "wxwork",
+          // 生产力工具
           "DingTalk.exe",
           "dingtalk",
           "Feishu.exe",
@@ -741,6 +712,7 @@
           "iQiyi.exe",
           "WeMeet.exe",
           "wemeetapp",
+          // 办公、网盘与游戏辅助
           "WPS.exe",
           "wps",
           "wpspdf.exe",
@@ -748,48 +720,30 @@
           "wpp.exe",
           "BaiduNetdisk.exe",
           "baidunetdisk",
-          "Thunder.exe",
-          "thunder",
           "AliyunPan.exe",
+          "aliyunpan",
           "Quark.exe",
+          "Quark",
           "WeGame.exe",
           "wegame",
           "UU.exe",
           "Heybox.exe",
+          // 局域网发现与核心同步 (KDE Connect 与 Localsend 核心保护)
+          "kdeconnectd.exe",
+          "kdeconnectd",
+          "kdeconnect-app.exe",
+          "kdeconnect-app",
+          "kdeconnect-indicator.exe",
+          "kdeconnect-handler.exe",
           "localsend_app.exe",
           "localsend_app",
-          "kdeconnectd.exe",
-          "kdeconnect-app.exe",
-          "kdeconnectd",
-          "kdeconnect-app",
-          "kdeconnect-handler.exe",
-          "kdeconnect-indicator.exe"
-        ],
-        "outbound": "direct"
-      },
-      {
-        "process_name": [
-          "ToDesk.exe",
-          "ToDesk_Service.exe",
-          "todesk",
-          "SunloginClient.exe",
-          "SunloginClient",
-          "sunloginclient",
-          "RayLink.exe",
-          "raylink",
-          "TeamViewer.exe",
-          "TeamViewer_Service.exe",
-          "teamviewer",
-          "TeamViewer",
           "AnyDesk.exe",
           "anydesk",
           "RustDesk.exe",
           "rustdesk",
-          "parsecd.exe",
-          "parsecd",
+          // 系统远控组件与串流
           "Moonlight.exe",
           "moonlight",
-          "Steam.exe",
           "streaming_client.exe",
           "mstsc.exe",
           "remmina",
@@ -799,40 +753,27 @@
         ],
         "outbound": "direct"
       },
+      // 5. 代理规则
+      { "rule_set": "geosite-google-gemini", "outbound": "✨ Gemini" },
+      { "rule_set": "geosite-ai", "outbound": "🤖 AI工具" },
+      { "rule_set": "geosite-youtube", "outbound": "▶️ 油管视频" },
+      // Google 组 (含 Play 区域修复)
       {
-        "domain_suffix": [
-          "beautifulcarrot.com",
-          "miceworld.top",
-          "0xc.xyz",
-          "0xc.cn",
-          "ash.do",
-          "ash6.com",
-          "ssh.github.com"
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          {
+            "domain": [
+              "services.googleapis.cn",
+              "googleapis.cn",
+              "xn--ngstr-lra8j.com",
+              "xn--ngstr-cn-8za9o.com"
+            ]
+          },
+          {
+            "rule_set": ["geoip-google", "geosite-google"]
+          }
         ],
-        "outbound": "direct"
-      },
-      {
-        "rule_set": "geosite-category-games@cn",
-        "outbound": "direct"
-      },
-      {
-        "rule_set": "geosite-category-games",
-        "outbound": "🎮 游戏服务"
-      },
-      {
-        "rule_set": "geosite-google-gemini",
-        "outbound": "✨ Gemini"
-      },
-      {
-        "rule_set": "geosite-ai",
-        "outbound": "🤖 AI工具"
-      },
-      {
-        "rule_set": "geosite-youtube",
-        "outbound": "▶️ 油管视频"
-      },
-      {
-        "rule_set": ["geoip-google", "geosite-google"],
         "outbound": "🇬 谷歌服务"
       },
       {
@@ -843,45 +784,70 @@
         "rule_set": ["geoip-telegram", "geosite-telegram"],
         "outbound": "📲 电报消息"
       },
-      {
-        "rule_set": "geosite-microsoft@cn",
-        "outbound": "direct"
-      },
-      {
-        "rule_set": "geosite-github",
-        "outbound": "🔰 节点选择"
-      },
-      {
-        "rule_set": "geosite-microsoft",
-        "outbound": "🪟 微软服务"
-      },
-      {
-        "port": [22],
-        "outbound": "🔑 SSH服务"
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "outbound": "🔰 节点选择"
-      },
-      {
-        "rule_set": ["geoip-cn", "geosite-cn"],
-        "outbound": "direct"
-      }
+      { "rule_set": "geosite-microsoft", "outbound": "🪟 微软服务" },
+      { "rule_set": "geosite-github", "outbound": "🔰 节点选择" },
+      { "rule_set": "geosite-category-games", "outbound": "🎮 游戏服务" },
+      { "port": 22, "outbound": "🔑 SSH服务" },
+
+      // 6. 境外兜底
+      { "rule_set": "geosite-geolocation-!cn", "outbound": "🔰 节点选择" },
+      { "clash_mode": "Global", "outbound": "🔰 节点选择" },
+
+      // --- 漏斗 Level 4: 物理层 (IP Fallback) ---
+      // 84KB Full GeoIP，终极兜底
+      { "rule_set": "geoip-cn", "outbound": "direct" }
     ],
     "rule_set": [
+      // CN - Level 1: Lite (20KB)
       {
-        "tag": "geosite-category-games@cn",
+        "tag": "geosite-cn-lite",
         "type": "remote",
         "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games@cn.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo-lite/geosite/cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      // CN - Level 2: Geolocation (32KB)
+      {
+        "tag": "geosite-geolocation-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      // CN - Level 3: Full (443KB)
+      {
+        "tag": "geosite-cn-full",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      // CN - Level 4: GeoIP Full (84KB)
+      {
+        "tag": "geoip-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      // Foreign - Standard/Full (Accuracy Priority)
+      {
+        "tag": "geosite-google",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       },
       {
-        "tag": "geosite-category-games",
+        "tag": "geosite-geolocation-!cn",
         "type": "remote",
         "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-!cn.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       },
@@ -898,14 +864,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google-gemini.srs",
-        "download_detour": "direct",
-        "update_interval": "3d"
-      },
-      {
-        "tag": "geosite-google",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       },
@@ -934,14 +892,6 @@
         "update_interval": "3d"
       },
       {
-        "tag": "geosite-microsoft@cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft@cn.srs",
-        "download_detour": "direct",
-        "update_interval": "3d"
-      },
-      {
         "tag": "geosite-microsoft",
         "type": "remote",
         "format": "binary",
@@ -950,34 +900,10 @@
         "update_interval": "3d"
       },
       {
-        "tag": "geosite-geolocation-!cn",
+        "tag": "geosite-category-games",
         "type": "remote",
         "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-!cn.srs",
-        "download_detour": "direct",
-        "update_interval": "3d"
-      },
-      {
-        "tag": "geoip-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
-        "download_detour": "direct",
-        "update_interval": "3d"
-      },
-      {
-        "tag": "geosite-geolocation-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-cn.srs",
-        "download_detour": "direct",
-        "update_interval": "3d"
-      },
-      {
-        "tag": "geosite-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       },
@@ -985,7 +911,7 @@
         "tag": "geoip-apple",
         "type": "remote",
         "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo-lite/geoip/apple.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/apple.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       },
@@ -1010,6 +936,31 @@
         "type": "remote",
         "format": "binary",
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/telegram.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      // Specific Optimization - Lite Versions for CN
+      {
+        "tag": "geosite-category-games@cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games@cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      {
+        "tag": "geosite-microsoft@cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft@cn.srs",
+        "download_detour": "direct",
+        "update_interval": "3d"
+      },
+      {
+        "tag": "geosite-apple@cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple@cn.srs",
         "download_detour": "direct",
         "update_interval": "3d"
       }
