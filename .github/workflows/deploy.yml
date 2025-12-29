@@ -1,0 +1,20 @@
+name: Deploy Multi-Branch Configs
+on:
+  push:
+    branches: ["main", "mobile", "win11"] # 监听所有分支
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync to Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          # 根据当前分支名创建子目录 (main/mobile/win11)
+          destination_dir: ${{ github.ref_name }}
+          keep_files: true # 防止新分支部署时删掉其他分支的文件
