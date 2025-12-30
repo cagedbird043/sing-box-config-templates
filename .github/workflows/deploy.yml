@@ -1,7 +1,14 @@
 name: Deploy Multi-Branch Configs
 on:
   push:
-    branches: ["main", "mobile", "win11"] # 监听所有分支
+    branches: ["main", "mobile", "win11"]
+
+# === 全聚得排队锁 ===
+# 所有的分支共用同一个 group 名字 "pages-deploy"
+# 这样当 mobile 正在部署时，win11 会在后面乖乖排队，直到 mobile 释放锁
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false # 关键！不能取消，必须排队等待上一个完成
 
 jobs:
   deploy:
@@ -17,4 +24,6 @@ jobs:
           publish_dir: .
           # 根据当前分支名创建子目录 (main/mobile/win11)
           destination_dir: ${{ github.ref_name }}
-          keep_files: true # 防止新分支部署时删掉其他分支的文件
+          keep_files: true
+          # 增加重试机制，防止极低概率的锁竞争失败
+          force_orphan: false
