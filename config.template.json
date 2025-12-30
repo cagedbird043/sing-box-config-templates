@@ -391,10 +391,10 @@
       "use_all_providers": true,
       "exclude": "剩余|流量|重置|到期|过期|订阅|官网|频道|TG|Telegram|群组|更新|套餐|续费|客服|通报|失联",
       "url": "http://cp.cloudflare.com/generate_204",
-      "tolerance": 15,
+      "tolerance": 30,
       "interval": "3m",
       "idle_timeout": "60m",
-      "interrupt_exist_connections": true
+      "interrupt_exist_connections": false
     },
     {
       "tag": "⚡ 自动选择(排除香港)",
@@ -407,10 +407,10 @@
       "use_all_providers": true,
       "exclude": "🇭🇰|香港|HK|HongKong|剩余|流量|重置|到期|过期|订阅|官网|频道|TG|Telegram|群组|更新|套餐|续费|客服|通报|失联",
       "url": "http://cp.cloudflare.com/generate_204",
-      "tolerance": 15,
+      "tolerance": 30,
       "interval": "3m",
       "idle_timeout": "60m",
-      "interrupt_exist_connections": true
+      "interrupt_exist_connections": false
     },
     {
       "tag": "🇨🇳 国内直连",
