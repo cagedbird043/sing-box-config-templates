@@ -96,7 +96,8 @@
               "geosite-cn-lite",
               "geosite-microsoft@cn",
               "geosite-apple@cn",
-              "geosite-google@cn"
+              "geosite-google@cn",
+              "geosite-googlefcm"
             ]
           }
         ],
@@ -120,7 +121,6 @@
           },
           {
             "rule_set": [
-              "geosite-googlefcm",
               "geosite-google",
               "geosite-geolocation-!cn",
               "geosite-youtube",
@@ -513,7 +513,8 @@
           "geosite-category-games@cn",
           "geosite-microsoft@cn",
           "geosite-apple@cn",
-          "geosite-google@cn"
+          "geosite-google@cn",
+          "geosite-googlefcm"
         ],
         "domain": [
           "beautifulcarrot.com",
@@ -606,7 +607,6 @@
             "rule_set": [
               "geoip-google",
               "geosite-google",
-              "geosite-googlefcm",
               "geosite-google-play@cn"
             ]
           }
