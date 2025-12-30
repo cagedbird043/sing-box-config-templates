@@ -39,6 +39,7 @@
       }
     ],
     "rules": [
+      { "rule_set": "geosite-category-ads-all", "action": "reject" },
       {
         "clash_mode": "Direct",
         "server": "local"
@@ -451,7 +452,7 @@
         ],
         "outbound": "🇨🇳 国内直连"
       },
-
+      { "rule_set": "geosite-category-ads-all", "action": "reject" },
       // --- 漏斗 Level 1: 急速层 (Lite + Manual) ---
       // 20KB 极小体积，命中 90% 日常流量，常驻 L1 Cache
       {
@@ -848,6 +849,15 @@
         "type": "remote",
         "format": "binary",
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple@cn.srs",
+        "download_detour": "🇨🇳 国内直连",
+        "update_interval": "3d"
+      },
+      // 去广告规则集
+      {
+        "tag": "geosite-category-ads-all",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-ads-all.srs",
         "download_detour": "🇨🇳 国内直连",
         "update_interval": "3d"
       }
