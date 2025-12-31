@@ -40,7 +40,7 @@
       {
         "tag": "fcm_hosts",
         "type": "hosts",
-        "path": "/data/adb/fcm/hosts"
+        "path": "/data/adb/fcm-hosts/hosts"
       }
     ],
     "rules": [
