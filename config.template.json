@@ -826,8 +826,8 @@
         "tag": "geosite-apple",
         "type": "remote",
         "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs",
-        "download_detour": "🇨🇳 国内直连",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.srs",
+        "download_detour": "⚡ 自动选择",
         "update_interval": "3d"
       },
       {
