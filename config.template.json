@@ -654,7 +654,7 @@
         "outbound": "🇬 谷歌服务"
       },
       {
-        "rule_set": ["geoip-apple", "geosite-apple"],
+        "rule_set": "geosite-apple",
         "outbound": "🍎 苹果服务"
       },
       {
@@ -810,14 +810,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games.srs",
-        "download_detour": "🇨🇳 国内直连",
-        "update_interval": "3d"
-      },
-      {
-        "tag": "geoip-apple",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/apple.srs",
         "download_detour": "🇨🇳 国内直连",
         "update_interval": "3d"
       },
