@@ -1,6 +1,6 @@
 # sing-box-config-templates
 
-[![Configuration](https://img.shields.io/badge/config-decoupled-blue)](https://github.com/cagedbird043/sing-box-config-templates)
+[![Configuration](https://img.shields.io/badge/config-decoupled-blue)](https://github.com/Mice-Tailor-Infra/sing-box-config-templates)
 
 本项目是个人 **Sing-box** 跨平台配置文件的上游模板仓库。
 
