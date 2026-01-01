@@ -174,7 +174,12 @@
       "type": "mixed",
       "listen": "0.0.0.0",
       "listen_port": 7890,
-      "users": []
+      "users": [
+        {
+          "username": "${MIXED_PROXY_USERNAME}",
+          "password": "${MIXED_PROXY_PASSWORD}"
+        }
+      ]
     },
     {
       "type": "direct",
