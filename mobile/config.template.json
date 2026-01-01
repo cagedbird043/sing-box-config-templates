@@ -35,7 +35,8 @@
       {
         "tag": "fakeip",
         "type": "fakeip",
-        "inet4_range": "198.18.0.0/15"
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fdfe::/16"
       },
       {
         "tag": "fcm_hosts",
@@ -152,7 +153,7 @@
       }
     ],
     "final": "google",
-    "strategy": "ipv4_only",
+    "strategy": "prefer_ipv6",
     "independent_cache": true,
     "reverse_mapping": true
   },
@@ -161,7 +162,7 @@
       "type": "tun",
       "tag": "tun-in",
       "stack": "mixed",
-      "address": ["172.18.0.1/30"],
+      "address": ["172.19.0.1/30", "fdfe:ffff::1/126"],
       "auto_route": true,
       "auto_redirect": true,
       // Win11 分支需改为 false
@@ -213,14 +214,7 @@
         "com.oplus.sau",
         "com.oplus.sauhelper",
         "com.coloros.translate" // ColorOS 翻译 (系统级语言服务)
-      ],
-      "platform": {
-        "http_proxy": {
-          "enabled": true,
-          "server": "127.0.0.1",
-          "server_port": 7890
-        }
-      }
+      ]
     },
     {
       "type": "mixed",
