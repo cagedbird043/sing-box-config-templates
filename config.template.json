@@ -45,6 +45,14 @@
       }
     ],
     "rules": [
+      // 0. 统计豁免 (SEO 需求)
+      {
+        "domain_keyword": [
+          "google-analytics",
+          "googletagmanager"
+        ],
+        "server": "fakeip"
+      },
       // 0. 核武级广告拦截 (最优先)
       {
         "rule_set": ["geosite-category-ads-all"],
@@ -441,6 +449,14 @@
           { "inbound": ["dns-in"] }
         ],
         "action": "hijack-dns"
+      },
+      // 0. 统计豁免 (SEO 需求)
+      {
+        "domain_keyword": [
+          "google-analytics",
+          "googletagmanager"
+        ],
+        "outbound": "🇬 谷歌服务"
       },
       // -1. 核武级广告拦截 (最优先)
       {
