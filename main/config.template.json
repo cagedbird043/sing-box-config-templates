@@ -51,6 +51,9 @@
           "google-analytics",
           "googletagmanager"
         ],
+        "domain": [
+          "analytics.google.com"
+        ],
         "server": "fakeip"
       },
       // 0. 核武级广告拦截 (最优先)
