@@ -454,11 +454,10 @@
         "action": "hijack-dns"
       },
       // 0. 统计豁免 (SEO 需求)
+      // 0. 统计豁免 (SEO 需求)
       {
-        "domain_keyword": [
-          "google-analytics",
-          "googletagmanager"
-        ],
+        "domain_keyword": ["google-analytics", "googletagmanager"],
+        "domain": ["analytics.google.com"],
         "outbound": "🇬 谷歌服务"
       },
       // -1. 核武级广告拦截 (最优先)
