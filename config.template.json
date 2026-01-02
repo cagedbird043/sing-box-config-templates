@@ -45,17 +45,6 @@
       }
     ],
     "rules": [
-      // 0. 统计豁免 (SEO 需求)
-      {
-        "domain_keyword": [
-          "google-analytics",
-          "googletagmanager"
-        ],
-        "domain": [
-          "analytics.google.com"
-        ],
-        "server": "fakeip"
-      },
       // 0. 核武级广告拦截 (最优先)
       {
         "rule_set": ["geosite-category-ads-all"],
@@ -460,7 +449,7 @@
       "tolerance": 50,
       "interval": "3m",
       "idle_timeout": "30m",
-      "interrupt_exist_connections": true
+      "interrupt_exist_connections": false
     },
     {
       "tag": "⚡ 自动选择(排除香港)",
@@ -476,7 +465,7 @@
       "tolerance": 50,
       "interval": "3m",
       "idle_timeout": "30m",
-      "interrupt_exist_connections": true
+      "interrupt_exist_connections": false
     },
     {
       "tag": "🇨🇳 国内直连",
@@ -498,13 +487,6 @@
           { "inbound": ["dns-in"] }
         ],
         "action": "hijack-dns"
-      },
-      // 0. 统计豁免 (SEO 需求)
-      // 0. 统计豁免 (SEO 需求)
-      {
-        "domain_keyword": ["google-analytics", "googletagmanager"],
-        "domain": ["analytics.google.com"],
-        "outbound": "🇬 谷歌服务"
       },
       // -1. 核武级广告拦截 (最优先)
       {
