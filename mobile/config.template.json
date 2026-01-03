@@ -213,7 +213,21 @@
         "com.oplus.romupdate",
         "com.oplus.sau",
         "com.oplus.sauhelper",
-        "com.coloros.translate" // ColorOS 翻译 (系统级语言服务)
+        "com.coloros.translate", // ColorOS 翻译 (系统级语言服务)
+
+        // --- 6. 用户自定义白名单 ---
+        "com.alibaba.android.rimet", // DingTalk
+        "com.tencent.mm", // WeChat
+        "com.unionpay", // UnionPay
+        "com.icbc", // ICBC
+        "com.MobileTicket", // 12306
+        "com.taobao.idlefish", // IdleFish
+        "com.bilibili.app.in", // Bilibili International
+        "tv.danmaku.bili", // Bilibili
+        "com.larus.nova", // Larus Nova
+        "com.tencent.mobileqq", // QQ
+        "com.deepseek.chat", // DeepSeek
+        "com.ss.android.ugc.aweme" // TikTok/Douyin
       ]
     },
     {
