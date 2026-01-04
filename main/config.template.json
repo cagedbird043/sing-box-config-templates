@@ -442,6 +442,29 @@
         ],
         "action": "hijack-dns"
       },
+      // 0. 基础直连 (Private/LAN)
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          { "ip_is_private": true },
+          { "protocol": ["ntp", "bittorrent"] },
+          { "port": 123 },
+          { "domain_suffix": [".lan"] }
+        ],
+        "outbound": "🇨🇳 国内直连"
+      },
+
+      // 0.5 模式覆盖 (最优先)
+      {
+        "clash_mode": "Direct",
+        "outbound": "🇨🇳 国内直连"
+      },
+      {
+        "clash_mode": "Global",
+        "outbound": "🔰 节点选择"
+      },
+
       // -1. 核武级广告拦截 (最优先)
       {
         "rule_set": ["geosite-category-ads-all"],
@@ -457,18 +480,6 @@
           { "protocol": ["stun", "quic"] }
         ],
         "action": "reject"
-      },
-      // 0. 基础直连 (Private/LAN)
-      {
-        "type": "logical",
-        "mode": "or",
-        "rules": [
-          { "ip_is_private": true },
-          { "protocol": ["ntp", "bittorrent"] },
-          { "port": 123 },
-          { "domain_suffix": [".lan"] }
-        ],
-        "outbound": "🇨🇳 国内直连"
       },
       // --- 漏斗 Level 1: 急速层 (Lite + Manual) ---
       // 20KB 极小体积，命中 90% 日常流量，常驻 L1 Cache
@@ -667,7 +678,7 @@
 
       // 6. 境外兜底
       { "rule_set": "geosite-geolocation-!cn", "outbound": "🔰 节点选择" },
-      { "clash_mode": "Global", "outbound": "🔰 节点选择" },
+
 
       // --- 漏斗 Level 4: 物理层 (IP Fallback) ---
       // 84KB Full GeoIP，终极兜底
