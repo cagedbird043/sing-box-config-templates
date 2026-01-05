@@ -20,7 +20,7 @@
     }
   },
   "dns": {
-    "servers": [${DNS_SERVERS_TOP},
+    "servers": [
       {
         "tag": "google",
         "type": "https",
@@ -42,9 +42,9 @@
         "tag": "fcm_hosts",
         "type": "hosts",
         "path": "/data/adb/fcm-hosts/hosts"
-      },
-      ${DNS_SERVERS_BOTTOM}]
-    "rules": [${DNS_RULES_TOP},
+      }
+    ],
+    "rules": [
       // 0. 核武级广告拦截 (最优先)
       {
         "rule_set": ["geosite-category-ads-all"],
@@ -60,7 +60,6 @@
         "server": "fcm_hosts",
         "disable_cache": true
       },
-      ${DNS_RULES_MID},
       {
         "clash_mode": "Global",
         "query_type": ["A", "AAAA"],
@@ -151,14 +150,14 @@
       {
         "query_type": ["A", "AAAA"],
         "server": "fakeip"
-      },
-      ${DNS_RULES_BOTTOM}]
+      }
+    ],
     "final": "google",
     "strategy": "prefer_ipv6",
     "independent_cache": true,
     "reverse_mapping": true
   },
-  "inbounds": [${INBOUNDS_TOP},
+  "inbounds": [
     {
       "type": "tun",
       "tag": "tun-in",
@@ -248,8 +247,8 @@
       "network": "udp",
       "listen": "127.0.0.1",
       "listen_port": 6053
-    },
-    ${INBOUNDS_BOTTOM}]
+    }
+  ],
   "providers": [
     {
       "tag": "${PROVIDER_NAME_1}",
@@ -288,7 +287,7 @@
       }
     }
   ],
-  "outbounds": [${OUTBOUNDS_TOP},
+  "outbounds": [
     {
       "tag": "🔰 节点选择",
       "type": "selector",
@@ -485,13 +484,13 @@
     {
       "tag": "🇨🇳 国内直连",
       "type": "direct"
-    },
-    ${OUTBOUNDS_BOTTOM}]
+    }
+  ],
   "route": {
     "auto_detect_interface": true,
     "default_domain_resolver": "local",
     "final": "🔰 节点选择",
-    "rules": [${ROUTE_RULES_TOP},
+    "rules": [
       { "action": "sniff" },
       {
         "type": "logical",
@@ -525,7 +524,6 @@
         "clash_mode": "Global",
         "outbound": "🔰 节点选择"
       },
-      ${ROUTE_RULES_MID},
 
       // -1. 核武级广告拦截 (最优先)
       {
@@ -670,8 +668,8 @@
 
       // --- 漏斗 Level 4: 物理层 (IP Fallback) ---
       // 84KB Full GeoIP，终极兜底
-      { "rule_set": "geoip-cn", "outbound": "🇨🇳 国内直连" },
-      ${ROUTE_RULES_BOTTOM}]
+      { "rule_set": "geoip-cn", "outbound": "🇨🇳 国内直连" }
+    ],
     "rule_set": [
       // CN - Level 1: Lite (20KB)
       {
