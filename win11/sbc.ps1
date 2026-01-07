@@ -47,8 +47,20 @@ function Ensure-Scoop {
 function Load-Env {
     if (Test-Path $ENV_FILE) {
         Get-Content $ENV_FILE | ForEach-Object {
+            # Match KEY=VALUE, ignoring comments
             if ($_ -match "^\s*([^#=]+)=(.*)$") {
-                [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process")
+                $key = $matches[1].Trim()
+                $val = $matches[2].Trim()
+                
+                # Strip wrapping quotes if present
+                if ($val.Length -ge 2) {
+                    if (($val.StartsWith('"') -and $val.EndsWith('"')) -or 
+                        ($val.StartsWith("'") -and $val.EndsWith("'"))) {
+                        $val = $val.Substring(1, $val.Length - 2)
+                    }
+                }
+                
+                [Environment]::SetEnvironmentVariable($key, $val, "Process")
             }
         }
     } else {
