@@ -3,14 +3,24 @@
 Mice System Tools - Sing-box Controller (Windows Edition)
 #>
 
-$CONF_DIR = $PSScriptRoot
+# Path Configuration
+$CONF_DIR = Join-Path $HOME "sing-box-config"
+$BIN_DIR = Join-Path $HOME ".local/bin"
+$SCRIPT_NAME = "sbc.ps1"
+
+# Derived Paths
 $ENV_FILE = Join-Path $CONF_DIR ".env"
 $TEMPLATE_FILE = Join-Path $CONF_DIR "config.template.json"
 $TARGET_CONF = Join-Path $CONF_DIR "config.json"
 $SERVICE_ID = "sing-box"
-$EXECUTABLE = "sing-box-service.exe" # WinSW renamed
+$EXECUTABLE = "sing-box-service.exe" 
 
-# Colors for output
+# Ensure correct working directory for git and service operations
+if (Test-Path $CONF_DIR) {
+    Set-Location $CONF_DIR
+}
+
+# Colors
 $Green = "Green"
 $Red = "Red"
 $Yellow = "Yellow"
@@ -34,10 +44,7 @@ function Load-Env {
 
 function Render-Config {
     Write-Host "Evaluating configuration template..." -ForegroundColor $Yellow
-    
-    # Simple envsubst implementation
     $content = Get-Content $TEMPLATE_FILE -Raw
-    # Find all ${VAR} patterns
     $matches = [regex]::Matches($content, '\$\{([^}]+)\}')
     foreach ($match in $matches) {
         $varName = $match.Groups[1].Value
@@ -46,86 +53,55 @@ function Render-Config {
             $content = $content.Replace($match.Value, $val)
         }
     }
-    
     Set-Content $TARGET_CONF $content -Encoding UTF8
     Write-Host "✅ Configuration rendered to $TARGET_CONF" -ForegroundColor $Green
 }
 
-# Main Logic
 $Command = $args[0]
+if (-not $Command) { $Command = "status" }
 
 switch ($Command) {
-    "start" {
-        Write-Host "Starting sing-box service..." -ForegroundColor $Green
-        Start-Service $SERVICE_ID
-    }
-    "stop" {
-        Write-Host "Stopping sing-box service..." -ForegroundColor $Yellow
-        Stop-Service $SERVICE_ID
-    }
-    "restart" {
-        Write-Host "Restarting sing-box service..." -ForegroundColor $Green
-        Restart-Service $SERVICE_ID
-        Write-Host "Service restarted."
-    }
-    "status" {
-        Get-Service $SERVICE_ID
-    }
+    "start" { Start-Service $SERVICE_ID; Write-Host "✅ Service started." -ForegroundColor $Green }
+    "stop" { Stop-Service $SERVICE_ID; Write-Host "🛑 Service stopped." -ForegroundColor $Yellow }
+    "restart" { Restart-Service $SERVICE_ID; Write-Host "✨ Service restarted." -ForegroundColor $Green }
+    "status" { Get-Service $SERVICE_ID }
     "log" {
         $LogFile = Join-Path $CONF_DIR "sing-box.out.log"
-        if (Test-Path $LogFile) {
-            Get-Content $LogFile -Tail 50 -Wait
-        } else {
-            Write-Host "Log file not found: $LogFile" -ForegroundColor $Red
-        }
+        if (Test-Path $LogFile) { Get-Content $LogFile -Tail 50 -Wait } 
+        else { Write-Host "Log file not found." -ForegroundColor $Red }
     }
     "check" {
-        Write-Host "Checking configuration syntax..." -ForegroundColor $Yellow
-        if (Test-Path $TARGET_CONF) {
-            & "./sing-box.exe" check -c $TARGET_CONF
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "✅ Syntax check passed." -ForegroundColor $Green
-            } else {
-                Write-Host "❌ Syntax check failed." -ForegroundColor $Red
-                exit 1
-            }
-        } else {
-             Write-Host "❌ Config file not found." -ForegroundColor $Red
-        }
+        & "./sing-box.exe" check -c $TARGET_CONF -D $CONF_DIR
     }
     "update" {
-        Write-Host "📡 Pulling latest directives from command center..." -ForegroundColor $Yellow
+        Write-Host "📡 Pulling updates..." -ForegroundColor $Yellow
         git pull
         
+        # Self-update script in bin
+        $RepoScript = Join-Path $CONF_DIR $SCRIPT_NAME
+        $BinScript = Join-Path $BIN_DIR $SCRIPT_NAME
+        if (Test-Path $RepoScript) {
+            if (-not (Test-Path $BIN_DIR)) { New-Item -ItemType Directory -Path $BIN_DIR | Out-Null }
+            Copy-Item $RepoScript $BinScript -Force
+            Write-Host "🔄 Script self-updated in $BIN_DIR" -ForegroundColor $Green
+        }
+
         Load-Env
         Render-Config
         
-        Write-Host "Checking syntax..."
-        & "./sing-box.exe" check -c $TARGET_CONF
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "✅ Syntax passed. Deploying..." -ForegroundColor $Green
-            Restart-Service $SERVICE_ID
-            Write-Host "✨ Synchronization complete! PC is now in orbit." -ForegroundColor $Green
-        } else {
-            Write-Host "❌ Rendered config invalid. Aborting." -ForegroundColor $Red
-            exit 1
-        }
+        Restart-Service $SERVICE_ID
+        Write-Host "✨ System updated and restarted." -ForegroundColor $Green
     }
     "install" {
-        Write-Host "Registering Windows Service..." -ForegroundColor $Yellow
         Load-Env
-        Render-Config # Ensure config exists before starting
+        Render-Config
         & "./$EXECUTABLE" install
         & "./$EXECUTABLE" start
-        Write-Host "✅ Service installed and started." -ForegroundColor $Green
+        Write-Host "✅ Service installed." -ForegroundColor $Green
     }
     "uninstall" {
-        Write-Host "Unregistering Windows Service..." -ForegroundColor $Yellow
         & "./$EXECUTABLE" stop
         & "./$EXECUTABLE" uninstall
-        Write-Host "✅ Service uninstalled." -ForegroundColor $Green
     }
-    Default {
-        Show-Usage
-    }
+    Default { Show-Usage }
 }
