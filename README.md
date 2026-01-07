@@ -11,6 +11,7 @@
 - **日志乱码**: PowerShell 默认已处理 UTF-8，如遇乱码请尝试 `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`。
 - **Git 冲突**: 如果手动修改了包含 Git 的文件，`sbc update` 可能会因冲突失败。建议保持本地仓库干净，仅通过修改 `.env` 自定义。
 - **启动失败 (Subscription 404)**: 如果日志显示 `unexpected status: 404 Not Found`，说明 `.env` 中的订阅链接失效。Sing-box 默认冷启动必须成功下载订阅。请更新 `.env` 后运行 `sbc render` 和 `sbc restart`。
+- **TLS 报错 (Unexpected EOF)**: 这是一个 MTU 问题。若发生此错误，请确保 `config.json` 中 Tun Inbound 的 MTU 设置为 `1280`，且 DNS 策略为 `ipv4_only`。
 
 
 | 命令 | Linux (Bash) | Windows (PowerShell) | 说明 |
