@@ -1,0 +1,14 @@
+<service>
+  <id>sing-box</id>
+  <name>SBC (Sing-Box Service)</name>
+  <description>Mice System Tools - Sing-box Controller Service</description>
+  <executable>sing-box.exe</executable>
+  <workingdirectory>%BASE%</workingdirectory>
+  <arguments>run -c config.json -D "%BASE%"</arguments>
+  <log mode="roll">
+    <sizeThreshold>10240</sizeThreshold> <!-- 10MB -->
+    <keepFiles>8</keepFiles>
+  </log>
+  <onfailure action="restart" delay="10 sec"/>
+  <env name="Path" value="%Path%"/>
+</service>
