@@ -16,19 +16,35 @@
 | 命令 | Linux (Bash) | Windows (PowerShell) | 说明 |
 | :--- | :--- | :--- | :--- |
 | **状态** | `sbc status` | `sbc status` | 查看服务运行状态 |
-| **更新** | `sbc update` | `sbc update` | 拉取最新代码(Repo)、渲染配置并重启 (不含二进制更新) |
+| **更新** | `sbc update` | `sbc update` | 拉取最新代码(Repo)、更新二进制(Scoop)、渲染配置并重启 |
 | **重启** | `sbc restart` | `sbc restart` | 仅重启服务 |
 | **日志** | `sbc log` | `sbc log` | 实时查看运行日志 (Tail -f) |
 | **检查** | `sbc check` | `sbc check` | 语法检查 |
+
+### 1. 验证安装
+```powershell
+sbc status   # 应显示 Running
+sbc check    # 应提示 Syntax OK
+```
+
+### 2. WSL 兼容性配置 (关键)
+若需在 WSL 2 中使用代理，**必须**配置为 NAT 模式，否则会与透明代理冲突。
+编辑 `%UserProfile%\.wslconfig`:
+```ini
+[wsl2]
+networkingMode=nat
+dnsTunneling=false
+```
+配置后需运行 `wsl --shutdown` 重启子系统。
 
 ## 📂 目录结构（分离架构）
 
 为了防止 Git 操作干扰运行，我们将文件分为了两个目录：
 
-### 1. 运行时目录 (`~/.config/sing-box`)
+### 1. 运行时目录 (`~/sing-box-config`)
 **这是服务的“家”，存放所有私密和运行时的文件。**
 ```powershell
-C:\Users\Mice\.config\sing-box\
+C:\Users\Mice\sing-box-config\
 ├── .env                  # [私密] 核心密钥与机场订阅
 ├── config.json           # [自动生成] 也就是 Sing-box 实际读取的配置
 ├── sing-box.exe          # [Binary] 主程序
@@ -52,7 +68,7 @@ C:\Users\Mice\sing-box-repo\
 ## 🔧 常见维护场景
 
 ### 修改订阅或密钥
-1. 编辑 `C:\Users\Mice\.config\sing-box\.env`。
+1. 编辑 `C:\Users\Mice\sing-box-config\.env`。
 2. 运行 `sbc restart`。
 
 ### 修改配置结构 (如增加路由规则)
@@ -62,7 +78,7 @@ C:\Users\Mice\sing-box-repo\
 ### 手动更新 Sing-box 版本
 如果 Scoop 自动更新失败：
 1. 下载新的 zip 包。
-2. 解压并将 `sing-box.exe` 覆盖到 `C:\Users\Mice\.config\sing-box\sing-box.exe`。
+2. 解压并将 `sing-box.exe` 覆盖到 `C:\Users\Mice\sing-box-config\sing-box.exe`。
 3. 运行 `sbc restart`。
 
 ---
