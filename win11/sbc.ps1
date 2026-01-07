@@ -87,13 +87,35 @@ function Render-Config {
     Write-Host "✅ Configuration rendered." -ForegroundColor $Green
 }
 
+function Sync-WslMtu {
+    $mtu = 9000
+    if (Test-Path $TARGET_CONF) {
+        try {
+            $json = Get-Content $TARGET_CONF -Raw | ConvertFrom-Json
+            if ($json.inbounds) {
+                $tun = $json.inbounds | Where-Object { $_.type -eq "tun" } | Select-Object -First 1
+                if ($tun -and $tun.mtu) { $mtu = $tun.mtu }
+            }
+        } catch { }
+    }
+    
+    if (Get-Command "wsl" -ErrorAction SilentlyContinue) {
+        Write-Host "🔄 Syncing WSL MTU to $mtu..." -ForegroundColor $Yellow
+        # Use -u root to avoid sudo prompt
+        wsl -u root ip link set dev eth0 mtu $mtu 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ WSL MTU synced." -ForegroundColor $Green
+        }
+    }
+}
+
 $Command = $args[0]
 if (-not $Command) { $Command = "status" }
 
 switch ($Command) {
-    "start" { Start-Service $SERVICE_ID; Write-Host "✅ Service started." -ForegroundColor $Green }
+    "start" { Start-Service $SERVICE_ID; Sync-WslMtu; Write-Host "✅ Service started." -ForegroundColor $Green }
     "stop" { Stop-Service $SERVICE_ID; Write-Host "🛑 Service stopped." -ForegroundColor $Yellow }
-    "restart" { Restart-Service $SERVICE_ID; Write-Host "✨ Service restarted." -ForegroundColor $Green }
+    "restart" { Restart-Service $SERVICE_ID; Sync-WslMtu; Write-Host "✨ Service restarted." -ForegroundColor $Green }
     "status" { Get-Service $SERVICE_ID }
     "log" {
         $LogFile = Join-Path $CONF_DIR "sing-box-service.wrapper.log"
@@ -125,6 +147,7 @@ switch ($Command) {
         Load-Env
         Render-Config
         Restart-Service $SERVICE_ID
+        Sync-WslMtu
         Write-Host "✨ Configuration updated and service restarted." -ForegroundColor $Green
     }
     "render" {
