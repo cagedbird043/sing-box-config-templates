@@ -96,9 +96,9 @@ switch ($Command) {
     "restart" { Restart-Service $SERVICE_ID; Write-Host "✨ Service restarted." -ForegroundColor $Green }
     "status" { Get-Service $SERVICE_ID }
     "log" {
-        $LogFile = Join-Path $CONF_DIR "sing-box.out.log"
+        $LogFile = Join-Path $CONF_DIR "sing-box-service.wrapper.log"
         if (Test-Path $LogFile) { Get-Content $LogFile -Tail 50 -Wait } 
-        else { Write-Host "Log file not found." -ForegroundColor $Red }
+        else { Write-Host "Log file not found: $LogFile" -ForegroundColor $Red }
     }
     "check" {
         if (Test-Path "$CONF_DIR\sing-box.exe") {
