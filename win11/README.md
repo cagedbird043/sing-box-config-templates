@@ -16,7 +16,7 @@
 | 命令 | Linux (Bash) | Windows (PowerShell) | 说明 |
 | :--- | :--- | :--- | :--- |
 | **状态** | `sbc status` | `sbc status` | 查看服务运行状态 |
-| **更新** | `sbc update` | `sbc update` | 拉取最新代码(Repo)、更新二进制(Scoop)、渲染配置并重启 |
+| **更新** | `sbc update` | `sbc update` | 拉取最新代码(Repo)、渲染配置并重启 (不含二进制更新) |
 | **重启** | `sbc restart` | `sbc restart` | 仅重启服务 |
 | **日志** | `sbc log` | `sbc log` | 实时查看运行日志 (Tail -f) |
 | **检查** | `sbc check` | `sbc check` | 语法检查 |

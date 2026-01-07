@@ -117,18 +117,15 @@ switch ($Command) {
         }
         
         # Binary update
-        Write-Host "📦 Updating binaries via Scoop..." -ForegroundColor $Yellow
-        # Only try update if we can
-        try {
-            scoop update sing-box-mice
-        } catch {
-            Write-Host "⚠️ Binary update skipped or failed. Using existing." -ForegroundColor $Yellow
-        }
+        # [DISABLED] Automatic binary update is disabled due to Windows file locking (mutex).
+        # Users should manually update the binary when the service is stopped.
+        # Write-Host "📦 Updating binaries via Scoop..." -ForegroundColor $Yellow
+        # try { scoop update sing-box-mice } catch { ... }
 
         Load-Env
         Render-Config
         Restart-Service $SERVICE_ID
-        Write-Host "✨ System updated and restarted." -ForegroundColor $Green
+        Write-Host "✨ Configuration updated and service restarted." -ForegroundColor $Green
     }
     "render" {
         Load-Env
