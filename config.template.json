@@ -35,8 +35,7 @@
       {
         "tag": "fakeip",
         "type": "fakeip",
-        "inet4_range": "198.18.0.0/15",
-        "inet6_range": "fdfe::/16"
+        "inet4_range": "198.18.0.0/15"
       },
       {
         "tag": "fcm_hosts",
@@ -153,7 +152,7 @@
       }
     ],
     "final": "google",
-    "strategy": "prefer_ipv4",
+    "strategy": "ipv4_only",
     "independent_cache": true,
     "reverse_mapping": true
   },
@@ -162,11 +161,11 @@
       "type": "tun",
       "tag": "tun-in",
       "stack": "mixed",
-      "address": ["172.19.0.1/30", "fdfe:ffff::1/126"],
+      "address": ["172.19.0.1/30"],
       "auto_route": true,
       "auto_redirect": false,
       "strict_route": true,
-      "mtu": 1280,
+      "mtu": 1500,
       "route_exclude_address_set": ["geoip-cn"]
     },
     {
