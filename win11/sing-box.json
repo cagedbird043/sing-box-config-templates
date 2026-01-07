@@ -1,0 +1,28 @@
+{
+    "version": "1.12.14",
+    "description": "Sing-box (Mice-Tailor Custom Build - reF1nd-main)",
+    "homepage": "https://github.com/Mice-Tailor-Infra/sing-box-auto-build-ci",
+    "license": "GPL-3.0-or-later",
+    "notes": "Custom build from Mice-Tailor-Infra",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/Mice-Tailor-Infra/sing-box-auto-build-ci/releases/download/v1.12.14/sing-box-v1.12.14-reF1nd-main-windows-amd64.zip",
+            "hash": "sha256:642e8194259ce366dd16f9a7394ef17d052842bc29a551b0b639c569ad95ae88",
+            "extract_dir": "sing-box-v1.12.14-reF1nd-main-windows-amd64"
+        }
+    },
+    "bin": "sing-box.exe",
+    "checkver": {
+        "url": "https://api.github.com/repos/Mice-Tailor-Infra/sing-box-auto-build-ci/releases",
+        "jsonpath": "$[?(@.name contains 'reF1nd-main')].tag_name",
+        "regex": "v([\\d.]+)"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/Mice-Tailor-Infra/sing-box-auto-build-ci/releases/download/v$version/sing-box-v$version-reF1nd-main-windows-amd64.zip",
+                "extract_dir": "sing-box-v$version-reF1nd-main-windows-amd64"
+            }
+        }
+    }
+}
