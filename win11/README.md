@@ -25,10 +25,10 @@
 
 为了防止 Git 操作干扰运行，我们将文件分为了两个目录：
 
-### 1. 运行时目录 (`~/sing-box-config`)
+### 1. 运行时目录 (`~/.config/sing-box`)
 **这是服务的“家”，存放所有私密和运行时的文件。**
 ```powershell
-C:\Users\Mice\sing-box-config\
+C:\Users\Mice\.config\sing-box\
 ├── .env                  # [私密] 核心密钥与机场订阅
 ├── config.json           # [自动生成] 也就是 Sing-box 实际读取的配置
 ├── sing-box.exe          # [Binary] 主程序
@@ -52,7 +52,7 @@ C:\Users\Mice\sing-box-repo\
 ## 🔧 常见维护场景
 
 ### 修改订阅或密钥
-1. 编辑 `C:\Users\Mice\sing-box-config\.env`。
+1. 编辑 `C:\Users\Mice\.config\sing-box\.env`。
 2. 运行 `sbc restart`。
 
 ### 修改配置结构 (如增加路由规则)
@@ -62,7 +62,7 @@ C:\Users\Mice\sing-box-repo\
 ### 手动更新 Sing-box 版本
 如果 Scoop 自动更新失败：
 1. 下载新的 zip 包。
-2. 解压并将 `sing-box.exe` 覆盖到 `C:\Users\Mice\sing-box-config\sing-box.exe`。
+2. 解压并将 `sing-box.exe` 覆盖到 `C:\Users\Mice\.config\sing-box\sing-box.exe`。
 3. 运行 `sbc restart`。
 
 ---

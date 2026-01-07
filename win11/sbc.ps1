@@ -5,7 +5,7 @@ Mice System Tools - Sing-box Controller (Windows Edition + Scoop + Git Separatio
 
 # Path Configuration
 $REPO_DIR = Join-Path $HOME "sing-box-repo"
-$CONF_DIR = Join-Path $HOME "sing-box-config"
+$CONF_DIR = Join-Path $HOME ".config/sing-box"
 $BIN_LINK = Join-Path $HOME ".local/bin/sbc.ps1"
 
 # Derived Paths
