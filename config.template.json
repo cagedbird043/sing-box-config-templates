@@ -49,6 +49,11 @@
         "rule_set": ["geosite-category-ads-all"],
         "action": "reject"
       },
+      // 0.1 下载域名强制 Real-IP (修复 FakeIP 证书错误/Akamai 劫持)
+      {
+        "domain": ["edgedl.me.gvt1.com", "dl.google.com"],
+        "server": "local"
+      },
       {
         "clash_mode": "Direct",
         "server": "local"
